@@ -2,7 +2,7 @@ package com.capstone.project.worldnavigator.world.portable;
 
 
 public class WithLock implements Openable {
-    private final boolean isBlock;
+    private boolean isBlock;
     private final Key key;
     private boolean isLocked;
     private boolean isClosed;
@@ -54,6 +54,13 @@ public class WithLock implements Openable {
     @Override
     public boolean isLocked() {
         return isLocked;
+    }
+
+    @Override
+    public void breakLock() {
+        isLocked=false;
+        isBlock=false;
+        isClosed=false;
     }
 
     @Override

@@ -2,7 +2,7 @@ package com.capstone.project.worldnavigator;
 
 
 
-import com.capstone.project.worldnavigator.util.Triple;
+import com.capstone.project.util.Triple;
 import com.capstone.project.worldnavigator.world.Room;
 import com.capstone.project.worldnavigator.world.portable.*;
 import com.capstone.project.worldnavigator.world.wall.Door;
@@ -41,7 +41,7 @@ public class WorldNavigatorBuilder {
             }
         }
         com.capstone.project.worldnavigator.world.Map map = new com.capstone.project.worldnavigator.world.Map(rooms);
-        final WorldNavigator worldNavigator = new WorldNavigator(map, players, GameStatus.NOT_STARTED);
+        final WorldNavigator worldNavigator = new WorldNavigator(map, players);
         setPositions(players,worldNavigator);
         return worldNavigator;
     }
@@ -67,7 +67,7 @@ public class WorldNavigatorBuilder {
 
     private static Key getKey() {
         String randomColor = UtilFunctions.generateRandomWords();
-        return new Key(randomColor,new Gold(20));
+        return new Key(randomColor,new Gold(10));
     }
 
 
@@ -82,7 +82,7 @@ public class WorldNavigatorBuilder {
     }
 
     private static List<List<Room>> set() {
-        List<List<Room>> lists = new ArrayList<>(HEIGHT);
+        List<List<Room>> lists = Collections.synchronizedList(new ArrayList<>(HEIGHT));
         for (int i = 0; i < HEIGHT; ++i) {
             lists.add(new ArrayList<>());
             for (int j = 0; j < WIDTH; j++) {
@@ -98,7 +98,7 @@ public class WorldNavigatorBuilder {
         walls.add(createDoor(new Triple(x,y,1)));
         walls.add(createDoor(new Triple(x,y,2)));
         walls.add(createDoor(new Triple(x,y,3)));
-        return new Room(walls,random.nextBoolean());
+        return new Room(walls,new Light(random.nextBoolean()),new WithInv());
     }
 
     private static Wall createDoor(Triple triple){
@@ -141,33 +141,33 @@ public class WorldNavigatorBuilder {
     }
 
     private static Wall getSeller() {
-        Inv inv = new Inv();
+        WithInv withInv = new WithInv();
         if (!keys.isEmpty())
-            inv.add(keys.poll());
+            withInv.add(keys.poll());
         if (!keys.isEmpty())
-            inv.add(keys.poll());
+            withInv.add(keys.poll());
         if (numberOfFlashlight-- > 0)
-            inv.add(new Light(true));
-        return WallFactory.getWall("Seller", inv, new WithoutLock(true));
+            withInv.add(new Light(new Gold(2),false,true));
+        return WallFactory.getWall("Seller", withInv, new WithoutLock(true));
     }
 
     private static Wall getChest() {
-        Inv inv = new Inv();
+        WithInv withInv = new WithInv();
         if (!keys.isEmpty())
-            inv.add(keys.poll());
+            withInv.add(keys.poll());
         if (numberOfFlashlight-- > 0)
-            inv.add(new Light(true));
+            withInv.add(new Light(new Gold(2),false,true));
         Key key = getKey();
         keys.add(key);
-        return WallFactory.getWall("Chest", inv, new WithLock(key, true, true));
+        return WallFactory.getWall("Chest", withInv, new WithLock(key, true, true));
     }
 
     private static Wall getWallWithItem(String type) {
-        Inv inv = new Inv();
+        WithInv withInv = new WithInv();
         if (!keys.isEmpty())
-            inv.add(keys.poll());
+            withInv.add(keys.poll());
         if (numberOfFlashlight-- > 0)
-            inv.add(new Light(true));
-        return WallFactory.getWall(type, inv, new WithoutLock(true));
+            withInv.add(new Light(new Gold(2),false,true));
+        return WallFactory.getWall(type, withInv, new WithoutLock(true));
     }
 }

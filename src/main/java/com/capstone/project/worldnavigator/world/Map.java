@@ -26,6 +26,10 @@ public class Map {
         } else return new NullWall(new WithoutLock(true), new WithoutInv());
     }
 
+    public Room getRoom(Point currentPosition) {
+        return rooms.get(currentPosition.x).get(currentPosition.y);
+    }
+
     public Light getLight(Point currentPosition) {
         int x = currentPosition.x;
         int y = currentPosition.y;

@@ -1,7 +1,7 @@
 package com.capstone.project.worldnavigator;
 
 
-import com.capstone.project.worldnavigator.world.portable.Inv;
+import com.capstone.project.worldnavigator.world.portable.WithInv;
 import com.capstone.project.worldnavigator.world.portable.Key;
 import com.capstone.project.worldnavigator.world.portable.Light;
 import com.capstone.project.worldnavigator.world.wall.Wall;
@@ -9,18 +9,22 @@ import com.capstone.project.worldnavigator.world.wall.Wall;
 import java.awt.*;
 
 public class Player {
-    private final Inv inv;
+    private final WithInv withInv;
     private int direction;
     private Point currentPosition;
     private Wall frontWall;
     private boolean isAlive=true;
 
+    public Wall getFrontWall() {
+        return frontWall;
+    }
+
     public void setDirection(int direction) {
         this.direction = direction;
     }
 
-    public Player() {
-        this.inv = new Inv();
+    public Player(WithInv withInv) {
+        this.withInv = withInv;
     }
 
     public int getDirection() {
@@ -36,11 +40,11 @@ public class Player {
     }
 
     public Light getFlashLight() {
-        return inv.getLight();
+        return withInv.getLight();
     }
 
-    public Inv getInv() {
-        return inv;
+    public WithInv getInv() {
+        return withInv;
     }
 
     public String left() {
@@ -51,7 +55,7 @@ public class Player {
 
     public String right() {
         this.direction = (this.direction + 1) % WorldNavigator.ROOM_WALL;
-        return "Turned Left";
+        return "Turned Right";
     }
 
     protected String move(int direction) {
@@ -118,5 +122,9 @@ public class Player {
 
     public boolean isAlive() {
         return isAlive;
+    }
+
+    public void dead() {
+        isAlive=false;
     }
 }

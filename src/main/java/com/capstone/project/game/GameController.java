@@ -19,15 +19,16 @@ public class GameController {
 
   @GetMapping("/query")
   public GameResponse query(
-      @RequestParam(required = true, name = "requestType") String requestType,
+      @RequestParam(required = false, name = "requestType", defaultValue = "default")
+          String requestType,
       Principal principal) {
     return gameService.query(requestType, principal.getName());
   }
 
   @GetMapping("/query_with_item")
   public GameResponse queryWithItem(
-      @RequestParam(required = true, name = "requestType") String requestType,
-      @RequestParam(required = true, name = "itemName") String itemName,
+      @RequestParam(name = "requestType") String requestType,
+      @RequestParam(name = "itemName") String itemName,
       Principal principal) {
     return gameService.queryWithItem(requestType, principal.getName(), itemName);
   }
@@ -42,7 +43,8 @@ public class GameController {
   public ResponseInfo check(Principal principal) {
     if (gameService.checkGame(principal.getName()).getWait()) {
       return new ResponseInfo("The Game Is Started");
-    } else if(gameService.checkGame(principal.getName())== GameStatus.NOT_STARTED) throw new ForbiddenException("The Game Not Started Yet");
+    } else if (gameService.checkGame(principal.getName()) == GameStatus.NOT_STARTED)
+      throw new ForbiddenException("The Game Not Started Yet");
     else throw new NotFoundException("You Not Join Game Yet");
   }
 

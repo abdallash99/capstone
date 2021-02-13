@@ -12,4 +12,6 @@ public interface Openable {
     boolean isBlock();
 
     boolean isClosed();
+
+    void breakLock();
 }

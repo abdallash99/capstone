@@ -28,10 +28,6 @@ public abstract class Wall {
 
     public abstract String look();
 
-    public String open() {
-        return lock.open();
-    }
-
     public String unlock(Key key) {
         return lock.use(key);
     }

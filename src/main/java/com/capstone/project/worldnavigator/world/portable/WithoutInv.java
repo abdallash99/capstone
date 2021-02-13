@@ -1,7 +1,7 @@
 package com.capstone.project.worldnavigator.world.portable;
 
+import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 
 public class WithoutInv implements Inventory {
     private static final String ERROR_MASSAGE = "Can't do This Here";
@@ -22,7 +22,7 @@ public class WithoutInv implements Inventory {
     }
 
     @Override
-    public List<Portable> check() {
+    public Collection<Portable> check() {
         return Collections.emptyList();
     }
 

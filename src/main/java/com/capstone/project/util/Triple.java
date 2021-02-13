@@ -1,4 +1,4 @@
-package com.capstone.project.worldnavigator.util;
+package com.capstone.project.util;
 
 public class Triple {
     private int x;

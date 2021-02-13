@@ -1,6 +1,5 @@
 package com.capstone.project.game;
 
-import com.capstone.project.worldnavigator.GameStatus;
 import com.capstone.project.worldnavigator.world.portable.Gold;
 import com.capstone.project.worldnavigator.world.portable.Portable;
 
@@ -10,22 +9,22 @@ public class GameResponse {
     private String res;
     private Gold numberOfGold;
     private List<Portable> items;
-    private GameStatus isEnd;
+    private List<String> playersName;
     private boolean isDead;
 
-    public GameResponse (Gold numberOfGold, List<Portable> items, GameStatus isEnd, boolean isDead) {
+    public GameResponse( Gold numberOfGold, List<Portable> items, List<String> playersName, boolean isDead) {
         this.numberOfGold = numberOfGold;
         this.items = items;
-        this.isEnd = isEnd;
+        this.playersName = playersName;
         this.isDead = isDead;
     }
 
-    public GameStatus isEnd() {
-        return isEnd;
+    public List<String> getPlayersName() {
+        return playersName;
     }
 
-    public void setEnd(GameStatus end) {
-        isEnd = end;
+    public void setPlayersName(List<String> playersName) {
+        this.playersName = playersName;
     }
 
     public boolean isDead() {

@@ -5,7 +5,7 @@ import java.util.Objects;
 public class Light implements Portable {
     private final Gold price;
     private boolean isIlluminate;
-    private boolean isHaseLight;
+    private final boolean isHaseLight;
 
     public Light(Gold price, boolean isIlluminate, boolean isHaseLight) {
         this.price = price;
@@ -42,16 +42,8 @@ public class Light implements Portable {
         return isIlluminate;
     }
 
-    public void setIlluminate(boolean illuminate) {
-        isIlluminate = illuminate;
-    }
-
     public boolean isHaseLight() {
         return isHaseLight;
-    }
-
-    public void setHaseLight(boolean haseLight) {
-        isHaseLight = haseLight;
     }
 
     public String use() {
