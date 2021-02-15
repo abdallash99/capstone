@@ -1,6 +1,6 @@
 package com.capstone.project.worldnavigator.world.wall;
 
-import com.capstone.project.worldnavigator.world.portable.*;
+import com.capstone.project.worldnavigator.world.item.*;
 
 public abstract class Wall {
     private final Openable lock;

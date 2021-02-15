@@ -1,8 +1,8 @@
 package com.capstone.project.worldnavigator.world.wall;
 
 
-import com.capstone.project.worldnavigator.world.portable.Inventory;
-import com.capstone.project.worldnavigator.world.portable.Openable;
+import com.capstone.project.worldnavigator.world.item.Inventory;
+import com.capstone.project.worldnavigator.world.item.Openable;
 
 class BlankWall extends Wall {
     public BlankWall(Openable lock, Inventory inv) {

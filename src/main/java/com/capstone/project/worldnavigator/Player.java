@@ -2,9 +2,9 @@ package com.capstone.project.worldnavigator;
 
 import static com.capstone.project.ProjectApplication.*;
 
-import com.capstone.project.worldnavigator.world.portable.WithInv;
-import com.capstone.project.worldnavigator.world.portable.Key;
-import com.capstone.project.worldnavigator.world.portable.Light;
+import com.capstone.project.worldnavigator.world.item.WithInv;
+import com.capstone.project.worldnavigator.world.item.Key;
+import com.capstone.project.worldnavigator.world.item.Light;
 import com.capstone.project.worldnavigator.world.wall.Wall;
 
 import java.awt.*;

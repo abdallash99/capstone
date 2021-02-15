@@ -3,7 +3,7 @@ package com.capstone.project.worldnavigator;
 import static com.capstone.project.ProjectApplication.*;
 import com.capstone.project.worldnavigator.world.Map;
 import com.capstone.project.worldnavigator.world.Room;
-import com.capstone.project.worldnavigator.world.portable.Gold;
+import com.capstone.project.worldnavigator.world.item.Gold;
 import com.capstone.project.worldnavigator.world.wall.Wall;
 
 import java.awt.*;

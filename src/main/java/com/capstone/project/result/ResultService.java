@@ -1,7 +1,7 @@
 package com.capstone.project.result;
 
 import com.capstone.project.worldnavigator.Player;
-import com.capstone.project.worldnavigator.world.portable.Gold;
+import com.capstone.project.worldnavigator.world.item.Gold;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

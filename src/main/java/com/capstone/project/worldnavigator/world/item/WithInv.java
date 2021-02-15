@@ -1,4 +1,4 @@
-package com.capstone.project.worldnavigator.world.portable;
+package com.capstone.project.worldnavigator.world.item;
 
 import java.util.ArrayList;
 import java.util.Collection;

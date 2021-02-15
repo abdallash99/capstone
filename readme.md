@@ -1,6 +1,19 @@
 # Capstone Project Backend
 [Front End Repository](https://github.com/abdallash99/capstone_frontend)
 
+used technology:
+* React
+* Spring
+* Java
+* Kubernetes 
+* Jenkins
+* EKS from AWS
+* Bootstrap
+* Git & Github
+* Maven
+* Docker
+  
+
 ## Code Overview
 
 ### 1. Effective Java 
@@ -231,3 +244,97 @@ if (canMove(currentPosition, newDirection))
 #### Name
 * N1 Choose Descriptive Names: I try to name variable good as I can.
 
+### Design pattern 
+#### Factory design pattern
+I used Factory design pattern for creating new Wall object, my Wall factory class have one method that can create new Wall objects from any wall type that extends wall, below the code. Figure 17 Wall Factory class Figure 18 using of wall factory As you can see above I use overriding on wall factory class I don’t sure if it’s the best practice, this wall factory will give you a very  good DI as I will take about that in next chapter, for now I used Wall factory on a constructer of the World Navigator to generate JSON file at next future I
+```java
+public class WallFactory {
+    private WallFactory() {
+    }
+    //this is the implementation of the factory 
+    public static Wall getWall(String wallType, Inventory inv, Openable lock) {
+        if (wallType.equalsIgnoreCase("Painting")) {
+            return new Painting(lock, inv);
+        } else if (wallType.equalsIgnoreCase("Door")) {
+            return new Door(lock, inv);
+        } else if (wallType.equalsIgnoreCase("Mirror")) {
+            return new Mirror(lock, inv);
+        } else if (wallType.equalsIgnoreCase("Seller")) {
+            return new Seller(lock, inv);
+        } else if (wallType.equalsIgnoreCase("Chest")) {
+            return new Chest(lock, inv);
+        } else if (wallType.equalsIgnoreCase("Wall")) {
+            return new BlankWall(lock, inv);
+        } else {
+            return new NullWall(lock, inv);
+        }
+    }
+}
+
+```
+
+```java
+//example of use of the factory
+WallFactory.getWall("Door",new WithoutInv(),new WithLock(false));
+```
+#### Strategy Design Pattern
+This design pattern give my code a lot of power, after I use it I don't worry about a lot of  if statement here is an example:
+```java
+ public String use(Key key) {
+        if (this.key.equals(key)) {
+            isLocked = false;
+            return "Unlocked Successfully";
+        } else return "This key is not suitable for the lock";
+    }
+```
+```java
+    public String use(Key key) {
+        return "Can't use the key in non lock wall";
+    }
+```
+Here if we invoke `use` function in Openable interface if the wall have Lock the function will work fine else the function will return message to tell the player this wall doesn't have lock to use it with.
+
+### SOLID principle 
+
+####  Single responsibility principle:
+I talk a lot about this principle because the two book writer talk about it in their book, I reduce the responsibility for each class and function as I can
+
+####  Open Close Principle:
+Design pattern give me awesome open/close  for example if I want to add new type of Lock on the wall the only thing that I should do is to create new class and give object of that class throw the wall factory and all thing will done for you, another example if you want to add new type of portable just add it nothing else you should do if it don’t effect the map, for example if I want to add axe so the player can break wall instead of open the door you just add new function on lock class this function change isBlock to false.
+
+#### Liskov Substitution Principle: 
+As I used strategy pattern this give me the same thing that we talk about it in the lecture, but not in the same way in my code the user might use check for example on non-check wall, because of that I use class and all function in it will return error message for the user instead of check validity and then call the function.
+
+#### Interface Segregation Principle:
+I guess my code don’t satisfy this principle on the best approach for example at any time, there might be new modification on inventory, so some type of the inv can’t sell or can’t buy but in this case we can create new inventory class and disable selling or buying in it.
+
+#### Dependency Inversion:
+As I talk in the previews chapters all of my constructor talk object as parameter does not create that object on the constructor, I try to do this in the best way, so I create WallFactory class as  I said before, I use Dependency Inversion in the best way to create a new map, you can check WorldNavigatorBuilder class and see how I use it, in addition spring have built in DI and I use it like the following code.
+```java
+ @Autowired private GameService gameService;
+```
+
+###  Google style code
+For this thing I use Google style plugin for style all my code.
+
+### Datastructures
+I used three main type of datastructures.
+1. `List` I use it for create the map and because concurrency issue I use  `Collections.synchronizedList`.
+2. `Map` I use map because of the power of find in it take O(1) time to find item.
+3. `Set` I use set to the same reason of use `Map`
+
+## DevOps
+### Git and Github
+I use git as version control and use github to host my code on it
+### jenkins 
+I create jenkins server on aws that talk code from github repository and build the code using maven and create an image and after all push it to docker hub.
+For frontend, I don't create one for now I will create one soon.
+### Docker 
+I use Docker to create image and run container from it, you can check docker file here to see how I create the image.
+
+### Kubernetes 
+I use kubernetes as orchestration tools for docker container and I use EKS from AWS to run it in the cloud I will add folder with all required .yaml file.
+
+## orchestration and containerization of My project
+I create Deployment for a backend and another one for frontend with this deployment I create two service with load balancer and this service give me two url, I connect backend with front end.
+I create postgresql host, but I don't write the code by me I git the code to run it from internet if you want to know more please open K8 folder you can find all file there  

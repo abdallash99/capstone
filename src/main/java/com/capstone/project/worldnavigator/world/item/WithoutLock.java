@@ -1,4 +1,4 @@
-package com.capstone.project.worldnavigator.world.portable;
+package com.capstone.project.worldnavigator.world.item;
 
 public class WithoutLock implements Openable {
     private boolean isBlock;

@@ -8,9 +8,9 @@ import com.capstone.project.worldnavigator.GameStatus;
 import com.capstone.project.worldnavigator.Player;
 import com.capstone.project.worldnavigator.WorldNavigator;
 import com.capstone.project.worldnavigator.WorldNavigatorBuilder;
-import com.capstone.project.worldnavigator.world.portable.Gold;
-import com.capstone.project.worldnavigator.world.portable.Portable;
-import com.capstone.project.worldnavigator.world.portable.WithInv;
+import com.capstone.project.worldnavigator.world.item.Gold;
+import com.capstone.project.worldnavigator.world.item.Portable;
+import com.capstone.project.worldnavigator.world.item.WithInv;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

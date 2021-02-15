@@ -1,8 +1,8 @@
 package com.capstone.project.worldnavigator.world;
 
 
-import com.capstone.project.worldnavigator.world.portable.WithInv;
-import com.capstone.project.worldnavigator.world.portable.Light;
+import com.capstone.project.worldnavigator.world.item.WithInv;
+import com.capstone.project.worldnavigator.world.item.Light;
 import com.capstone.project.worldnavigator.world.wall.Wall;
 
 import java.util.*;

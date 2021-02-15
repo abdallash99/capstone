@@ -5,7 +5,7 @@ import static com.capstone.project.ProjectApplication.*;
 
 import com.capstone.project.util.Triple;
 import com.capstone.project.worldnavigator.world.Room;
-import com.capstone.project.worldnavigator.world.portable.*;
+import com.capstone.project.worldnavigator.world.item.*;
 import com.capstone.project.worldnavigator.world.wall.Door;
 import com.capstone.project.worldnavigator.world.wall.Wall;
 import com.capstone.project.worldnavigator.world.wall.WallFactory;

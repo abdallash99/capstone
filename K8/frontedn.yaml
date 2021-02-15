@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+  labels:
+    name: frontend
+    app: capstone
+spec:
+  selector:
+    matchLabels:
+      app: capstone-frontend
+  template:
+    metadata:
+      name: frontend-pods
+      labels:
+        app: capstone-frontend
+    spec:
+      containers:
+        - name: capstone
+          image: abdallash/capstone_frontend:v1
+          ports:
+            - containerPort: 80
+  replicas: 1
+    

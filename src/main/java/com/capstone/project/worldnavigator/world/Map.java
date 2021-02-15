@@ -1,9 +1,9 @@
 package com.capstone.project.worldnavigator.world;
 
 
-import com.capstone.project.worldnavigator.world.portable.Light;
-import com.capstone.project.worldnavigator.world.portable.WithoutInv;
-import com.capstone.project.worldnavigator.world.portable.WithoutLock;
+import com.capstone.project.worldnavigator.world.item.Light;
+import com.capstone.project.worldnavigator.world.item.WithoutInv;
+import com.capstone.project.worldnavigator.world.item.WithoutLock;
 import com.capstone.project.worldnavigator.world.wall.NullWall;
 import com.capstone.project.worldnavigator.world.wall.Wall;
 

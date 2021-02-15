@@ -1,7 +1,7 @@
 package com.capstone.project.worldnavigator.world.wall;
 
-import com.capstone.project.worldnavigator.world.portable.Inventory;
-import com.capstone.project.worldnavigator.world.portable.Openable;
+import com.capstone.project.worldnavigator.world.item.Inventory;
+import com.capstone.project.worldnavigator.world.item.Openable;
 class Seller extends Wall {
 
     public Seller(Openable lock, Inventory inv) {

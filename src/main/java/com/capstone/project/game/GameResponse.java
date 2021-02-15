@@ -1,7 +1,7 @@
 package com.capstone.project.game;
 
-import com.capstone.project.worldnavigator.world.portable.Gold;
-import com.capstone.project.worldnavigator.world.portable.Portable;
+import com.capstone.project.worldnavigator.world.item.Gold;
+import com.capstone.project.worldnavigator.world.item.Portable;
 
 import java.util.List;
 
