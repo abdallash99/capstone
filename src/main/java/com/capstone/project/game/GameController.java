@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.security.Principal;
 
-@CrossOrigin(origins = ProjectApplication.url)
+@CrossOrigin(origins = "*", allowedHeaders = "*")
 @RestController
 public class GameController {
   @Autowired private GameService gameService;

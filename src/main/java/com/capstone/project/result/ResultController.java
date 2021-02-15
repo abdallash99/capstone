@@ -11,7 +11,7 @@ import java.security.Principal;
 import java.util.List;
 
 @RestController
-@CrossOrigin(origins = ProjectApplication.url)
+@CrossOrigin(origins = "*", allowedHeaders = "*")
 public class ResultController {
 
     @Autowired

@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.*;
 import java.security.Principal;
 import java.util.Optional;
 
-@CrossOrigin(origins = ProjectApplication.url)
+@CrossOrigin(origins = "*", allowedHeaders = "*")
 @RestController
 public class AuthController {
   @Autowired private AuthenticationManager authenticationManager;
