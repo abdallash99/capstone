@@ -64,6 +64,10 @@ public class WorldNavigator {
         return "Back Is Blocked";
     }
 
+    private boolean canMove(Point currentPosition, int direction) {
+        Wall wall = map.getWall(currentPosition, direction);
+        return !wall.getLock().isLocked() && !wall.getLock().isBlock() && !wall.getLock().isClosed();
+    }
     public void setFrontWall(Player player) {
         Point currentPosition = player.getCurrentPosition();
         int direction = player.getDirection();
@@ -119,10 +123,6 @@ public class WorldNavigator {
         return players.get(username).playerStatus();
     }
 
-    private boolean canMove(Point currentPosition, int direction) {
-        Wall wall = map.getWall(currentPosition, direction);
-        return !wall.getLock().isLocked() && !wall.getLock().isBlock() && !wall.getLock().isClosed();
-    }
 
     public String switchLight(String username) {
         Point currentPosition = players.get(username).getCurrentPosition();

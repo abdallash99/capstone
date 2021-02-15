@@ -3,7 +3,7 @@
 
 ## Code Overview
 
-### Effective Java 
+### 1. Effective Java 
 1. Item 1: As you can see in WallFactory class I use Factory Method to create new Wall instead of using Constructor to create them.
 2. Item 4: In all Class that shouldn't create Object from them I add a private constructor you can see this in WorldNavigatorBuilder class
 ```java
@@ -141,5 +141,93 @@ public String loot() {
 ```
 26. Item 64: In all code I use interface to refer to object, but in player class i use the class itself because the player always have inventory and use the interface here will lead to reduce the feature of the class.
 
-27. Item 68: I use the name convention for all thing like class, all class started with capital latter and use camel case and so on.
+27. Item 68: I use the name convention for all thing for example class, all class started with capital latter and use camel case and so on.
+
+### 2. Clean Code:
+#### Comments:
+1. C3 Redundant Comment: I try to make the code self explained as I can and because of that you will not see any comment in my code.
+
+2. C5 Commented-Out Code: all unusable code or unneeded deleted from the project.
+
+#### Environment:
+
+* because I use a maven with the spring I don't worry about building or testing the application and with jenkins all of these things done just buy on button.
+
+#### Functions:
+1. F1 Too Many Arguments: as I say in the previews section all functions have less than three argument, and I try to reduce the number of parameter.
+
+2. F2 Output Arguments,F3 Flag Arguments : In all function that I create, I talk care of the parameter, so it's can't do more than what it should do.
+
+#### General:
+1. G4 Overridden Safeties: In the code I try to remove all warning by do what I should do not by disable it.
+2. G5 Duplication: In the code I try to keep the code minimum as possible and every piece of code that repeated more than one time I try to redundant the code.
+3. G6 Code at Wrong Level of Abstraction: by using of Factory design pattern and Strategy design pattern I guss that my abstraction is done in the right way.
+4. G7 Base Classes Depending on Their Derivatives: Parent class don't know anything about there children on my code.
+5. G8 Too Much Information: Make the code with fewer functions is not easy thing because of at the same time you need to stratify single purpose principle, I try to make less function but at the same time don't give the function more than one job.
+6. G11 Inconsistency: I try to make all of my code with the same conventions, and review the code a lot of time for that, but it might happen.
+7. G15: Selector Arguments: I don't use boolean as argument I just use it as constructor parameter.
+8. G16 Obscured Intent: This is an example of random code that I wrote, naming of the function describe what it does without do a lot of effort to understand it.
+```java
+public String check() {
+        if (frontWall.getLock().isLocked()) {
+            return frontWall.getLock().check();
+        } else if (!frontWall.getInv().check().isEmpty()) {
+            getInv().addAll(frontWall.getInv().check());
+            return frontWall.getInv().loot();
+        }
+        return "No Item Here";
+    }
+```
+9. G17 Misplaced Responsibility: On my code I write every function in the right place (at least I guss that), and by using packaging you don't need a lot of time to find what you're searching for in it.
+10. G19 Use Explanatory Variables: I try to name the local variable to be self explained as I can, this is example:
+```java
+Point currentPosition = player.getCurrentPosition();
+```
+
+11. G20 Function Names Should Say What They Do: as I say before good function name give the code more readability, for example look at code in point 8.
+
+12. G23 Prefer Polymorphism to If/Else or Switch/Case: I try to reduce if statement as I can, and use polymorphism like when you want to open something the code don't check the type of it using strategy design pattern reduce a lot of if/else statements.
+
+13. G25 Replace Magic Numbers with Named Constants:  as you can see here I define all constant variable with a good name, and some of them give them enum value based on effective java items.   
+```java
+public class ProjectApplication {
+    public static final Random random=new Random();
+    public static final int HEIGHT = random.nextInt(20) + 50;
+    public static final int WIDTH = random.nextInt(20) + 50;
+    public static final int GAME_PERIOD = 300000;
+    public static final int NUMBER_OF_PLAYER=2;
+    public static final int ROOM_WALL_NUMBER = 4;
+    public static final DirectionsMove[] MOVE_RATE = {
+            DirectionsMove.UP,
+            DirectionsMove.RIGHT,
+            DirectionsMove.DOWN,
+            DirectionsMove.LEFT
+    };
+
+    public static void main(String[] args) {
+        SpringApplication.run(ProjectApplication.class, args);
+    }
+
+
+}
+
+```
+
+14. G28 Encapsulate Conditionals: as you can see here I separate the condition in boolean function that can check the condition.
+
+```java
+if (canMove(currentPosition, newDirection))
+```
+
+15. G29 Avoid Negative Conditionals: I try to do that, but sometime when I use Collections for example `isEmpty()` function, and I want to check if list is empty, here I should use the bad type.
+
+16. G30 Functions Should Do One Thing: I try to create function with one job, and this is a part of single responsibility principle.
+
+17. G35 Keep Configurable Data at High Levels: if you look o the code in point 15 you will see that all configuration variable is declared here in the main class.
+
+#### Java
+1. J1 Avoid Long Import Lists by Using Wildcards: At all of my code when I import I try to not import every thing but there is situation I should import it with it name like List because java.awt and java.util have List.
+2. J3 Constants versus Enums: We talk about this in effective java items.
+#### Name
+* N1 Choose Descriptive Names: I try to name variable good as I can.
 
