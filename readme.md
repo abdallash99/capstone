@@ -12,8 +12,9 @@ used technology:
 * Git & Github
 * Maven
 * Docker
-  
 
+[Frontend Live preivew](ae8a2dc34295e40f0816eae657ba1a12-1120369785.eu-west-1.elb.amazonaws.com)
+[Backend URL](a3e735911c7d34404806c9eb25e1be93-1776962881.eu-west-1.elb.amazonaws.com)
 ## Code Overview
 
 ### 1. Effective Java 
