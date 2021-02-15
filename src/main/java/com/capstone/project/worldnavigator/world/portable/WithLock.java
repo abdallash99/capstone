@@ -34,6 +34,16 @@ public class WithLock implements Openable {
     }
 
     @Override
+    public String toString() {
+        return "WithLock{" +
+                "isBlock=" + isBlock +
+                ", key=" + key +
+                ", isLocked=" + isLocked +
+                ", isClosed=" + isClosed +
+                '}';
+    }
+
+    @Override
     public String open() {
         if (isClosed && !isLocked) {
             isClosed = false;

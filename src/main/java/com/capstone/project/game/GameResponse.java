@@ -12,7 +12,18 @@ public class GameResponse {
     private List<String> playersName;
     private boolean isDead;
 
-    public GameResponse( Gold numberOfGold, List<Portable> items, List<String> playersName, boolean isDead) {
+    @Override
+    public String toString() {
+        return "GameResponse{" +
+                "res='" + res + '\'' +
+                ", numberOfGold=" + numberOfGold +
+                ", items=" + items +
+                ", playersName=" + playersName +
+                ", isDead=" + isDead +
+                '}';
+    }
+
+    public GameResponse(Gold numberOfGold, List<Portable> items, List<String> playersName, boolean isDead) {
         this.numberOfGold = numberOfGold;
         this.items = items;
         this.playersName = playersName;

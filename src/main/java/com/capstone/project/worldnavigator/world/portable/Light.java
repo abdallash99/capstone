@@ -50,10 +50,10 @@ public class Light implements Portable {
         if (isHaseLight) {
             if (isIlluminate) {
                 isIlluminate = false;
-                return "game.world.portable.Light Is Turned Off";
+                return "Light Is Turned Off";
             } else {
                 isIlluminate = true;
-                return "game.world.portable.Light Is Turned On";
+                return "Light Is Turned On";
             }
         } else {
             return "There Is No game.world.portable.Light";
@@ -67,6 +67,6 @@ public class Light implements Portable {
 
     @Override
     public String toString() {
-        return "game.world.portable.Light, price " + price.getPrice();
+        return "Light, price " + price.getPrice();
     }
 }

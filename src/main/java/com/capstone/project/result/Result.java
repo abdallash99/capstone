@@ -20,6 +20,15 @@ public class Result implements Serializable {
         Score = score;
     }
 
+    @Override
+    public String toString() {
+        return "Result{" +
+                "id=" + id +
+                ", result='" + result + '\'' +
+                ", Score=" + Score +
+                '}';
+    }
+
     public IdClass getId() {
         return id;
     }

@@ -1,6 +1,7 @@
 package com.capstone.project.worldnavigator;
 
 
+import static com.capstone.project.ProjectApplication.*;
 
 import com.capstone.project.util.Triple;
 import com.capstone.project.worldnavigator.world.Room;
@@ -16,12 +17,9 @@ import java.util.List;
 
 public class WorldNavigatorBuilder {
 
-    private WorldNavigatorBuilder() {
-    }
+    private WorldNavigatorBuilder() { }
 
-    private static final Random random = new Random();
-    private static final int HEIGHT = random.nextInt(20) + 50;
-    private static final int WIDTH = random.nextInt(20) + 50;
+
     private static final List<List<Room>> rooms = set();
     private static final List<Integer> x = getShuffledList(HEIGHT);
     private static final List<Integer> y = getShuffledList(WIDTH);
@@ -48,8 +46,8 @@ public class WorldNavigatorBuilder {
 
     private static void setPositions (Map<String, Player> players,WorldNavigator worldNavigator) {
         players.forEach((key,value)->{
-            int x=random.nextInt(HEIGHT);
-            int y=random.nextInt(WIDTH);
+            int x=random.nextInt(HEIGHT-1);
+            int y=random.nextInt(WIDTH-1);
             int direction=random.nextInt(3);
             value.setCurrentPosition(new Point(x,y));
             value.setDirection(direction);
@@ -118,8 +116,8 @@ public class WorldNavigatorBuilder {
         if (direction < 0) direction = 3;
         direction--;
         if (direction < 0) direction = 3;
-        int newX=WorldNavigator.MOVE_RATE[direction][0]+triple.getX();
-        int newY=WorldNavigator.MOVE_RATE[direction][1]+ triple.getY();
+        int newX=MOVE_RATE[direction].getX()+triple.getX();
+        int newY=MOVE_RATE[direction].getY()+ triple.getY();
         final Door door = (Door) WallFactory.getWall("Door", new WithoutInv(), new WithLock(key, true, false));
         doors.put(new Triple(newX,newY,direction),door);
         return door;

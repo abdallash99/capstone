@@ -10,6 +10,18 @@ public class User {
     private int id;
     private String userName;
     private String password;
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", userName='" + userName + '\'' +
+                ", password='" + password + '\'' +
+                ", active=" + active +
+                ", roles='" + roles + '\'' +
+                '}';
+    }
+
     private boolean active;
     private String roles;
 

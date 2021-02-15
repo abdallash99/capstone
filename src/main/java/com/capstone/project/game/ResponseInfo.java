@@ -7,6 +7,13 @@ public class ResponseInfo {
         this.message = message;
     }
 
+    @Override
+    public String toString() {
+        return "ResponseInfo{" +
+                "message='" + message + '\'' +
+                '}';
+    }
+
     public String getMessage() {
         return message;
     }

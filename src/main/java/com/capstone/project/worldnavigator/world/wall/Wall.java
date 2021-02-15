@@ -6,6 +6,14 @@ public abstract class Wall {
     private final Openable lock;
     private final Inventory inv;
 
+    @Override
+    public String toString() {
+        return "Wall{" +
+                "lock=" + lock +
+                ", inv=" + inv +
+                '}';
+    }
+
     protected Wall(Openable lock, Inventory inv) {
         this.lock = lock;
         this.inv = inv;

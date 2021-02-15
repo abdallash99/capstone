@@ -26,6 +26,16 @@ public class MyUserDetails implements UserDetails {
     }
 
     @Override
+    public String toString() {
+        return "MyUserDetails{" +
+                "userName='" + userName + '\'' +
+                ", password='" + password + '\'' +
+                ", active=" + active +
+                ", authorities=" + authorities +
+                '}';
+    }
+
+    @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return authorities;
     }

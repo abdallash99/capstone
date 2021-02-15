@@ -1,6 +1,6 @@
 package com.capstone.project.worldnavigator;
 
-
+import static com.capstone.project.ProjectApplication.*;
 import com.capstone.project.worldnavigator.world.Map;
 import com.capstone.project.worldnavigator.world.Room;
 import com.capstone.project.worldnavigator.world.portable.Gold;
@@ -10,8 +10,7 @@ import java.awt.*;
 import java.util.HashMap;
 
 public class WorldNavigator {
-    public static final int ROOM_WALL = 4;
-    protected static final int[][] MOVE_RATE = {{-1, 0}, {0, 1}, {1, 0}, {0, -1}};
+
     private final Map map;
     private final java.util.Map<String, Player> players;
     private final java.util.Map<Point, String> playersPosition;
@@ -23,7 +22,14 @@ public class WorldNavigator {
         players.forEach((key,value)->playersPosition.put(value.getCurrentPosition(),key));
     }
 
-
+    @Override
+    public String toString() {
+        return "WorldNavigator{" +
+                "map=" + map +
+                ", players=" + players +
+                ", playersPosition=" + playersPosition +
+                '}';
+    }
 
     public java.util.Map<String, Player> getPlayers() {
         return players;
@@ -47,7 +53,7 @@ public class WorldNavigator {
 
         Point currentPosition = player.getCurrentPosition();
         int direction = player.getDirection();
-        int newDirection = (direction + 2) % ROOM_WALL;
+        int newDirection = (direction + 2) % ROOM_WALL_NUMBER;
 
         if (canMove(currentPosition, newDirection)) {
             final String move = player.move(direction);

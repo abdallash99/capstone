@@ -1,5 +1,6 @@
 package com.capstone.project.worldnavigator;
 
+import static com.capstone.project.ProjectApplication.*;
 
 import com.capstone.project.worldnavigator.world.portable.WithInv;
 import com.capstone.project.worldnavigator.world.portable.Key;
@@ -54,13 +55,24 @@ public class Player {
     }
 
     public String right() {
-        this.direction = (this.direction + 1) % WorldNavigator.ROOM_WALL;
+        this.direction = (this.direction + 1) % ROOM_WALL_NUMBER;
         return "Turned Right";
     }
 
+    @Override
+    public String toString() {
+        return "Player{" +
+                "withInv=" + withInv +
+                ", direction=" + direction +
+                ", currentPosition=" + currentPosition +
+                ", frontWall=" + frontWall +
+                ", isAlive=" + isAlive +
+                '}';
+    }
+
     protected String move(int direction) {
-        currentPosition.x += WorldNavigator.MOVE_RATE[direction][0];
-        currentPosition.y += WorldNavigator.MOVE_RATE[direction][1];
+        currentPosition.x += MOVE_RATE[direction].getX();
+        currentPosition.y += MOVE_RATE[direction].getY();
         return "Moved To The Next game.world.Room";
     }
 

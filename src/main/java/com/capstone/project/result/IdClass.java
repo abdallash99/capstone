@@ -13,6 +13,14 @@ public class IdClass implements Serializable {
         this.username = username;
     }
 
+    @Override
+    public String toString() {
+        return "IdClass{" +
+                "worldId='" + worldId + '\'' +
+                ", username='" + username + '\'' +
+                '}';
+    }
+
     public IdClass() {
     }
 

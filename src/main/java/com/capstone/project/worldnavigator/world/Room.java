@@ -18,6 +18,15 @@ public class Room {
         this.withInv = withInv;
     }
 
+    @Override
+    public String toString() {
+        return "Room{" +
+                "walls=" + walls +
+                ", lights=" + lights +
+                ", withInv=" + withInv +
+                '}';
+    }
+
     public WithInv getInv() {
         return withInv;
     }

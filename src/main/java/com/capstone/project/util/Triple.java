@@ -28,6 +28,15 @@ public class Triple {
     }
 
     @Override
+    public String toString() {
+        return "Triple{" +
+                "x=" + x +
+                ", y=" + y +
+                ", direction=" + direction +
+                '}';
+    }
+
+    @Override
     public int hashCode() {
         int result = x;
         result = 31 * result + y;

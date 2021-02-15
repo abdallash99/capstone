@@ -1,6 +1,5 @@
 package com.capstone.project.game;
 
-import com.capstone.project.ProjectApplication;
 import com.capstone.project.exception.ForbiddenException;
 import com.capstone.project.exception.NotFoundException;
 import com.capstone.project.worldnavigator.GameStatus;
@@ -41,9 +40,9 @@ public class GameController {
 
   @GetMapping("/check")
   public ResponseInfo check(Principal principal) {
-    if (gameService.checkGame(principal.getName()).getWait()) {
+    if (gameService.checkGameStatus(principal.getName()).getWait()) {
       return new ResponseInfo("The Game Is Started");
-    } else if (gameService.checkGame(principal.getName()) == GameStatus.NOT_STARTED)
+    } else if (gameService.checkGameStatus(principal.getName()) == GameStatus.NOT_STARTED)
       throw new ForbiddenException("The Game Not Started Yet");
     else throw new NotFoundException("You Not Join Game Yet");
   }

@@ -26,17 +26,12 @@ public class ResultService {
 
     public void findWinner(Map<String, Player> playerMap,String worldId){
         Gold maxGold=new Gold(0);
-        Set<String> winnerUsername=new HashSet<>();
-        for(var player:playerMap.entrySet()){
-            if(player.getValue().getInv().getGold().getPrice()>maxGold.getPrice()){
-                maxGold=player.getValue().getInv().getGold();
-                winnerUsername.clear();
-                winnerUsername.add(player.getKey());
-            }else if(player.getValue().getInv().getGold().getPrice()==maxGold.getPrice()){
-                winnerUsername.add(player.getKey());
-            }
-        }
-        for(var player:playerMap.entrySet()){
+        Set<String> winnerUsername = getWinnerSet(playerMap, maxGold);
+        saveResultToDB(playerMap, worldId, winnerUsername);
+    }
+
+    private void saveResultToDB(Map<String, Player> playerMap, String worldId, Set<String> winnerUsername) {
+        for(var player: playerMap.entrySet()){
             final int score = player.getValue().getInv().getGold().getPrice();
             if(winnerUsername.contains(player.getKey())){
                 saveResult(new Result(new IdClass(worldId,player.getKey()),"Winner", score));
@@ -44,5 +39,19 @@ public class ResultService {
                 saveResult(new Result(new IdClass(worldId,player.getKey()),"Loser",score));
             }
         }
+    }
+
+    private Set<String> getWinnerSet(Map<String, Player> playerMap, Gold maxGold) {
+        Set<String> winnerUsername=new HashSet<>();
+        for(var player: playerMap.entrySet()){
+            if(player.getValue().getInv().getGold().getPrice()> maxGold.getPrice()){
+                maxGold =player.getValue().getInv().getGold();
+                winnerUsername.clear();
+                winnerUsername.add(player.getKey());
+            }else if(player.getValue().getInv().getGold().getPrice()== maxGold.getPrice()){
+                winnerUsername.add(player.getKey());
+            }
+        }
+        return winnerUsername;
     }
 }

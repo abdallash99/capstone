@@ -1,5 +1,5 @@
 package com.capstone.project.game;
-
+import static com.capstone.project.ProjectApplication.*;
 import com.capstone.project.exception.BadRequestException;
 import com.capstone.project.exception.ForbiddenException;
 import com.capstone.project.result.ResultService;
@@ -18,8 +18,7 @@ import java.util.*;
 
 @Service
 public class GameService {
-    public static final int GAME_PERIOD = 300000;
-    private static final int NUMBER_OF_PLAYER=2;
+
     private final Map<String,WorldNavigator> worldNavigators;
     private final Map<String,String> playingPlayers;
     private final Map<String ,Date> startingTimeOfGame;
@@ -36,16 +35,24 @@ public class GameService {
     }
 
     public void join(String username){
-        if(playingPlayers.containsKey(username)){
-            throw new BadRequestException("You are Already Join Game");
-        }
+        checkIfAlreadyJoined(username);
         WithInv withInv=new WithInv();
         withInv.add(new Gold(20));
         players.put(username,new Player(withInv));
-        checkPlayers();
+        checkIfGameReady();
     }
 
-    private void checkPlayers() {
+    private void checkIfAlreadyJoined(String username) {
+        if(playingPlayers.containsKey(username)){
+            throw new BadRequestException("You are Already Join Game");
+        }
+    }
+
+    private void addAllPlayers(String id) {
+        players.forEach((key,value)->playingPlayers.put(key,id));
+    }
+
+    private void checkIfGameReady() {
         if(players.size()>=NUMBER_OF_PLAYER){
             String id= UtilFunctions.generateRandomWords();
             addAllPlayers(id);
@@ -54,17 +61,28 @@ public class GameService {
             players=new HashMap<>();
         }
     }
-
-    private void addAllPlayers(String id) {
-        players.forEach((key,value)->playingPlayers.put(key,id));
+    private void checkIfStart(String username) {
+        if(!playingPlayers.containsKey(username))
+            throw new ForbiddenException("The game not started yet");
     }
 
-    public GameStatus checkGame(String name) {
-      if(playingPlayers.containsKey(name)){
+    public GameStatus checkGameStatus(String name) {
+        if(playingPlayers.containsKey(name)){
             return GameStatus.START;
         }else if(players.containsKey(name)) return GameStatus.NOT_STARTED;
-      else return GameStatus.NOT_JOINED;
+        else return GameStatus.NOT_JOINED;
     }
+    private void checkIfEnd(String worldId) {
+        Date now=new Date();
+        if(now.getTime()-startingTimeOfGame.get(worldId).getTime()> GAME_PERIOD){
+            Map<String,Player>playerMap= worldNavigators.get(worldId).getPlayers();
+            resultService.findWinner(playerMap,worldId);
+            playerMap.forEach((key,value)->playingPlayers.remove(key));
+            worldNavigators.remove(worldId);
+            throw new ForbiddenException("Game Is End");
+        }
+    }
+
 
     private GameResponse getResponse(String worldId, String username){
         checkIfEnd(worldId);
@@ -77,16 +95,7 @@ public class GameService {
         return new GameResponse(gold,portableList,playersUsername,player.isAlive());
     }
 
-    private void checkIfEnd(String worldId) {
-        Date now=new Date();
-        if(now.getTime()-startingTimeOfGame.get(worldId).getTime()> GAME_PERIOD){
-            Map<String,Player>playerMap= worldNavigators.get(worldId).getPlayers();
-            resultService.findWinner(playerMap,worldId);
-            playerMap.forEach((key,value)->playingPlayers.remove(key));
-            worldNavigators.remove(worldId);
-            throw new ForbiddenException("Game Is End");
-        }
-    }
+
 
     public GameResponse query(String queryType, String username) {
         String worldId=playingPlayers.get(username);
@@ -126,10 +135,7 @@ public class GameService {
         return gameResponse;
     }
 
-    private void checkIfStart(String username) {
-        if(!playingPlayers.containsKey(username))
-            throw new ForbiddenException("The game not started yet");
-    }
+
 
     private String forward(String worldId,String username) {
         return worldNavigators.get(worldId).forward(username);
@@ -179,7 +185,6 @@ public class GameService {
     private String sell(String worldId,String username, String name) {
         return worldNavigators.get(worldId).sell(username,name);
     }
-
 
     private String look(String worldId,String username) {
         return worldNavigators.get(worldId).look(username);

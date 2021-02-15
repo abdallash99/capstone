@@ -1,12 +1,10 @@
 package com.capstone.project.util;
 
-import java.util.Random;
-
+import static com.capstone.project.ProjectApplication.random;
 public class UtilFunctions {
 
     private UtilFunctions(){}
 
-    private static final Random random=new Random();
     public static String generateRandomWords()
     {
         String randomStrings ;
