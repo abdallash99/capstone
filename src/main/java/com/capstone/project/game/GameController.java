@@ -44,7 +44,7 @@ public class GameController {
       return new ResponseInfo("The Game Is Started");
     } else if (gameService.checkGameStatus(principal.getName()) == GameStatus.NOT_STARTED)
       throw new ForbiddenException("The Game Not Started Yet");
-    else throw new NotFoundException("You Not Join Game Yet");
+    else throw new NotFoundException("You Not Join Game Yet ");
   }
 
   @GetMapping("/join")
