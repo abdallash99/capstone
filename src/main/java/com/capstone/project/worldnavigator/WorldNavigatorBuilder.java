@@ -18,10 +18,8 @@ import java.util.*;
 import java.util.List;
 
 public class WorldNavigatorBuilder {
+    private WorldNavigatorBuilder(){}
 
-
-
-    private static  RMap<RoomKey,Room> rooms;
     private static final List<Integer> x = getShuffledList(HEIGHT);
     private static  final List<Integer> y = getShuffledList(WIDTH);
     private static  final    Map<Triple, Door> doors = new HashMap<>();
@@ -31,7 +29,7 @@ public class WorldNavigatorBuilder {
 
 
     public static void build(String worldId,RedissonClient redissonClient) {
-        rooms=redissonClient.getMap("rooms");
+        RMap<RoomKey, Room> rooms = redissonClient.getMap("rooms");
         for (int row=0;row<HEIGHT;row++) {
             for (int col=0;col<WIDTH;col++) {
                 rooms.put(new RoomKey(worldId,row,col),createRoom(row,col));

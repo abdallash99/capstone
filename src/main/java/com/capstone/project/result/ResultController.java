@@ -1,7 +1,6 @@
 package com.capstone.project.result;
 
 
-import com.capstone.project.ProjectApplication;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
