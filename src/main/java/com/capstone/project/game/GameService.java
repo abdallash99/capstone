@@ -1,64 +1,85 @@
 package com.capstone.project.game;
 import static com.capstone.project.ProjectApplication.*;
+
 import com.capstone.project.exception.BadRequestException;
 import com.capstone.project.exception.ForbiddenException;
 import com.capstone.project.result.ResultService;
+import com.capstone.project.util.RoomKey;
 import com.capstone.project.util.UtilFunctions;
 import com.capstone.project.worldnavigator.GameStatus;
 import com.capstone.project.worldnavigator.Player;
-import com.capstone.project.worldnavigator.WorldNavigator;
 import com.capstone.project.worldnavigator.WorldNavigatorBuilder;
-import com.capstone.project.worldnavigator.world.item.Gold;
-import com.capstone.project.worldnavigator.world.item.Portable;
-import com.capstone.project.worldnavigator.world.item.WithInv;
+import com.capstone.project.worldnavigator.world.Room;
+import com.capstone.project.worldnavigator.world.item.*;
+import com.capstone.project.worldnavigator.world.wall.Wall;
+import org.redisson.api.RMap;
+import org.redisson.api.RMultimap;
+import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.awt.*;
 import java.util.*;
+import java.util.List;
 
 @Service
 public class GameService {
 
-    private final Map<String,WorldNavigator> worldNavigators;
-    private final Map<String,String> playingPlayers;
-    private final Map<String ,Date> startingTimeOfGame;
-    private Map<String,Player> players;
+    private final RMap<RoomKey, Room> rooms;
+    private final RMap<String,Player> playingPlayers;
+    private final RMap<String,GameStatus> playerStatus;
+    private final RMap<RoomKey ,String> playerPositions;
+    private final RMap<String ,Date> startingTimeOfGame;
+    private final RMultimap<String,String> playerInGame;
+    private final Set<String> waitingPlayer;
 
+    private final ResultService resultService;
+
+    private final RedissonClient redissonClient;
     @Autowired
-    private ResultService resultService;
-
-    public GameService() {
-        worldNavigators=Collections.synchronizedMap( new HashMap<>());
-        players=Collections.synchronizedMap( new HashMap<>());
-        playingPlayers=Collections.synchronizedMap( new HashMap<>());
-        startingTimeOfGame=Collections.synchronizedMap( new HashMap<>());
+    public GameService(RedissonClient redissonClient,ResultService resultService) {
+      rooms=redissonClient.getMap("rooms");
+      playingPlayers=redissonClient.getMap("players");
+      startingTimeOfGame=redissonClient.getMap("time");
+      playerPositions =redissonClient.getMap("positions");
+      playerStatus=redissonClient.getMap("status");
+      waitingPlayer=new HashSet<>();
+      playerInGame=redissonClient.getListMultimap("playerInGame");
+      this.resultService=resultService;
+      this.redissonClient=redissonClient;
     }
 
     public void join(String username){
         checkIfAlreadyJoined(username);
-        WithInv withInv=new WithInv();
-        withInv.add(new Gold(20));
-        players.put(username,new Player(withInv));
+        waitingPlayer.add(username);
+        playerStatus.put(username,GameStatus.NOT_STARTED);
         checkIfGameReady();
     }
 
     private void checkIfAlreadyJoined(String username) {
-        if(playingPlayers.containsKey(username)){
+        if(playerStatus.containsKey(username)){
             throw new BadRequestException("You are Already Join Game");
         }
     }
 
-    private void addAllPlayers(String id) {
-        players.forEach((key,value)->playingPlayers.put(key,id));
-    }
 
     private void checkIfGameReady() {
-        if(players.size()>=NUMBER_OF_PLAYER){
+        if(waitingPlayer.size()>=NUMBER_OF_PLAYER){
             String id= UtilFunctions.generateRandomWords();
-            addAllPlayers(id);
-            worldNavigators.put(id,WorldNavigatorBuilder.build(players));
+            WorldNavigatorBuilder.build(id,redissonClient);
             startingTimeOfGame.put(id,new Date());
-            players=new HashMap<>();
+            for (var username:waitingPlayer){
+                WithInv inv=new WithInv();
+                inv.add(new Gold(20));
+                playingPlayers.put(
+                        username,
+                        new Player(inv,
+                            random.nextInt(4),
+                            new Point(random.nextInt(HEIGHT-1),random.nextInt(WIDTH-1)),
+                            id)
+                );
+                playerStatus.put(username,GameStatus.START);
+            }
         }
     }
     private void checkIfStart(String username) {
@@ -66,20 +87,39 @@ public class GameService {
             throw new ForbiddenException("The game not started yet");
     }
 
-    public GameStatus checkGameStatus(String name) {
-        if(playingPlayers.containsKey(name)){
-            return GameStatus.START;
-        }else if(players.containsKey(name)) return GameStatus.NOT_STARTED;
-        else return GameStatus.NOT_JOINED;
+    public GameStatus checkGameStatus(String username) {
+        if(playerStatus.containsKey(username))
+            return playerStatus.get(username);
+        throw new ForbiddenException("You Are Not Join Any Game");
     }
     private void checkIfEnd(String worldId) {
         Date now=new Date();
         if(now.getTime()-startingTimeOfGame.get(worldId).getTime()> GAME_PERIOD){
-            Map<String,Player>playerMap= worldNavigators.get(worldId).getPlayers();
-            resultService.findWinner(playerMap,worldId);
-            playerMap.forEach((key,value)->playingPlayers.remove(key));
-            worldNavigators.remove(worldId);
+            Collection<String> playerUsername= playerInGame.get(worldId);
+            Map<String,Player> players=new HashMap<>();
+            for (var username:playerUsername){
+                players.put(username,playingPlayers.get(username));
+            }
+            resultService.findWinner(players,worldId);
+            deletePlayers(playerUsername);
+
+            deleteRooms(worldId);
             throw new ForbiddenException("Game Is End");
+        }
+    }
+
+    private void deletePlayers( Collection<String> playerUsername) {
+        for (var username: playerUsername){
+            playerStatus.remove(username);
+            playingPlayers.remove(username);
+        }
+    }
+
+    private void deleteRooms(String worldId) {
+        for(int row=0;row< HEIGHT;row++){
+            for (int col=0;col<WIDTH;col++){
+                rooms.remove(new RoomKey(worldId,row,col));
+            }
         }
     }
 
@@ -87,32 +127,31 @@ public class GameService {
     private GameResponse getResponse(String worldId, String username){
         checkIfEnd(worldId);
         checkIfStart(username);
-        final WorldNavigator worldNavigator = worldNavigators.get(worldId);
-        Player player= worldNavigator.getPlayers().get(username);
+        Player player= playingPlayers.get(username);
         Gold gold=player.getInv().getGold();
         List<Portable> portableList=player.getInv().getInvList();
-        List<String> playersUsername=new ArrayList<>(worldNavigator.getPlayers().keySet());
-        return new GameResponse(gold,portableList,playersUsername,player.isAlive());
+        List<String> playersUsername=new ArrayList<>(playerInGame.get(worldId));
+        return new GameResponse(gold,portableList,playersUsername);
     }
 
 
 
     public GameResponse query(String queryType, String username) {
-        String worldId=playingPlayers.get(username);
+        String worldId=playingPlayers.get(username).getWorldId();
         String res= switch (queryType){
-             case "forward" -> forward(worldId, username);
-             case "playerStatus" -> playerStatus(worldId, username);
-             case "switchLight" -> switchLight(worldId, username);
-             case "backward"-> backward(worldId, username);
-             case "open"-> open(worldId, username);
-             case "right"-> right(worldId, username);
-             case "left"-> left(worldId, username);
-             case "useFlashLight"-> useFlashLight(worldId, username);
-             case "list"-> list(worldId, username);
-             case "look"-> look(worldId, username);
-             case "checkKey"-> checkKey(worldId, username);
-             case "check"-> check(worldId, username);
-             case "breakWall"-> breakWall(worldId, username);
+             case "forward" -> forward(username);
+             case "playerStatus" -> playerStatus(username);
+             case "switchLight" -> switchLight(username);
+             case "backward"-> backward(username);
+             case "open"-> open(username);
+             case "right"-> right( username);
+             case "left"-> left(username);
+             case "useFlashLight"-> useFlashLight(username);
+             case "list"-> list(username);
+             case "look"-> look(username);
+             case "checkKey"-> checkKey(username);
+             case "check"-> check(username);
+             case "breakWall"-> breakWall(username);
              case "default"-> "";
              default -> throw new BadRequestException(String.format("unknown requestType : %s",queryType));
          };
@@ -123,11 +162,11 @@ public class GameService {
 
     public GameResponse queryWithItem(String queryType,String username,String itemName){
 
-        String worldId=playingPlayers.get(username);
+        String worldId=playingPlayers.get(username).getWorldId();
         String res= switch (queryType){
-            case "useKey"-> useKey(worldId,username,itemName);
-            case "buy"-> buy(worldId,username,itemName);
-            case "sell"-> sell(worldId,username,itemName);
+            case "useKey"-> useKey(username,itemName);
+            case "buy"-> buy(username,itemName);
+            case "sell"-> sell(username,itemName);
             default -> throw new BadRequestException(String.format("unknown requestType : %s",queryType));
         };
         GameResponse gameResponse=getResponse(worldId,username);
@@ -137,80 +176,188 @@ public class GameService {
 
 
 
-    private String forward(String worldId,String username) {
-        return worldNavigators.get(worldId).forward(username);
+    public String forward(String username) {
+        final Player player = playingPlayers.get(username);
+        Point currentPosition = player.getCurrentPosition();
+        int direction = player.getDirection();
+        if (canMove(player,direction)) {
+            final String move = player.move(direction);
+            String res=checkNewRoom(username,currentPosition);
+            return move+"\n"+res;
+        } else return "Front Is Blocked";
     }
 
-    private String playerStatus(String worldId,String username) {
-        return worldNavigators.get(worldId).playerStatus(username);
+    public String backward(String username) {
+        final Player player = playingPlayers.get(username);
+
+        Point currentPosition = player.getCurrentPosition();
+        int direction = player.getDirection();
+        int newDirection = (direction + 2) % ROOM_WALL_NUMBER;
+
+        if (canMove(player,newDirection)) {
+            final String move = player.move(direction);
+            String res=checkNewRoom(username,currentPosition);
+            return move+"\n"+res;
+        }
+        return "Back Is Blocked";
     }
 
-    private String switchLight(String worldId,String username) {
-        return worldNavigators.get(worldId).switchLight(username);
+    private boolean canMove(Player player,int direction) {
+        Wall wall=getFrontWall(player,direction);
+        return !wall.getLock().isLocked() && !wall.getLock().isBlock() && !wall.getLock().isClosed();
     }
 
-    private String backward(String worldId,String username) {
-        return worldNavigators.get(worldId).backward(username);
+    private Wall getFrontWall(Player player,int direction){
+        Room currentRoom = rooms.get(new RoomKey(player.getWorldId(),
+                player.getCurrentPosition().x,
+                player.getCurrentPosition().y));
+        return currentRoom.getWalls().get(direction);
     }
 
-    private String open(String worldId,String username) {
-        return worldNavigators.get(worldId).open(username);
+    public String breakWall(String username) {
+        Player player = playingPlayers.get(username);
+        getFrontWall(player,player.getDirection()).getLock().breakLock();
+        player.getInv().add(new Gold(-13));
+        return "Wall Broken You Lost 3 Gold";
     }
 
-    private String right(String worldId,String username) {
-         return worldNavigators.get(worldId).right(username);
+    private String checkNewRoom(String username,Point position) {
+        Player ourPlayer=playingPlayers.get(username);
 
+        final RoomKey roomKey = new RoomKey(ourPlayer.getWorldId(), ourPlayer.getCurrentPosition().x, ourPlayer.getCurrentPosition().y);
+
+        if(playerPositions.containsKey(roomKey)){
+            String anotherPlayerUsername= playerPositions.get(roomKey);
+            Player anotherPlayer= playingPlayers.get(anotherPlayerUsername);
+            Gold playerGold=anotherPlayer.getInv().getGold();
+            Gold minusPlayerGold=new Gold( -playerGold.getPrice());
+
+            anotherPlayer.getInv().add(minusPlayerGold);
+            ourPlayer.getInv().addAll(anotherPlayer.getInv().check());
+            addGoldToAllPlayer(playerGold,ourPlayer.getWorldId());
+            playingPlayers.remove(anotherPlayerUsername);
+            playerStatus.remove(anotherPlayerUsername);
+        }
+        playerPositions.put(new RoomKey(ourPlayer.getWorldId(),position.x,position.y),username);
+        Room currentRoom =rooms.get(getRoomKey(ourPlayer));
+        ourPlayer.getInv().addAll(currentRoom.getInv().check());
+        return currentRoom.getInv().loot() ;
     }
 
-    private String left(String worldId,String username) {
-         return worldNavigators.get(worldId).left(username);
+    public void addPlayerItemsToWorld(String username){
+        Player player=playingPlayers.get(username);
+        Gold gold=player.getInv().getGold();
+        Room room= rooms.get(getRoomKey(player));
+        room.getInv().addAll(player.getInv().check());
+        addGoldToAllPlayer(gold,player.getWorldId());
     }
 
-    private String useFlashLight(String worldId,String username) {
-        return worldNavigators.get(worldId).useFlashLight(username);
+    private void addGoldToAllPlayer(Gold playerGold,String worldId) {
+        int playerCount=1;
+        Collection<String> players=playerInGame.get(worldId);
+        if(players.size()>1){
+            playerCount=players.size()-1;
+        }
+        Gold gold=new Gold(playerGold.getPrice()/(playerCount));
+        players.forEach(value->playingPlayers.get(value).getInv().add(gold));
     }
 
-    private String useKey(String worldId,String username, String keyColor) {
-        return worldNavigators.get(worldId).useKey(username,keyColor);
+    public String playerStatus(String username) {
+        return playingPlayers.get(username).playerStatus();
     }
 
-    private String list(String worldId,String username) {
-        return worldNavigators.get(worldId).list(username);
+
+    public String switchLight(String username) {
+        Player player = playingPlayers.get(username);
+        return rooms.get(getRoomKey(player)).getLight().use();
     }
 
-    private String buy(String worldId,String username, String name) {
-        return worldNavigators.get(worldId).buy(username,name);
+    public String open(String username) {
+        final Player player = playingPlayers.get(username);
+        return getFrontWall(player,player.getDirection()).getLock().open();
     }
 
-    private String sell(String worldId,String username, String name) {
-        return worldNavigators.get(worldId).sell(username,name);
+    public String right(String username) {
+        final Player player = playingPlayers.get(username);
+        return player.right();
     }
 
-    private String look(String worldId,String username) {
-        return worldNavigators.get(worldId).look(username);
+    public String left(String username) {
+        final Player player = playingPlayers.get(username);
+        return player.left();
     }
 
-    private String checkKey(String worldId,String username) {
-        return worldNavigators.get(worldId).checkKey(username);
+    public String useFlashLight(String username) {
+        return playingPlayers.get(username).useFlashLight();
     }
 
-    private String check(String worldId,String username) {
-        return worldNavigators.get(worldId).check(username);
+    public String useKey(String username, String keyColor) {
+        final Player player = playingPlayers.get(username);
+        return getFrontWall(player,player.getDirection()).unlock(new Key(keyColor));
     }
 
-    private String breakWall(String worldId,String username) {
-        return worldNavigators.get(worldId).breakWall(username);
+    public String list(String username) {
+        final Player player = playingPlayers.get(username);
+        return getFrontWall(player,player.getDirection()).getInv().list();
     }
 
+    public String buy(String username, String name) {
+        final Player player = playingPlayers.get(username);
+        WithInv playerInv= player.getInv();
+        Inventory wallInv=getFrontWall(player,player.getDirection()).getInv();
+        wallInv.sell(name);
+        return playerInv.buy(name);
+    }
+
+    public String sell(String username, String name) {
+        final Player player = playingPlayers.get(username);
+        WithInv playerInv= player.getInv();
+        Inventory wallInv=getFrontWall(player,player.getDirection()).getInv();
+        wallInv.buy(name);
+        return playerInv.sell(name);
+    }
+
+    private boolean isNotDark(Player player) {
+        Light roomLight= rooms.get(getRoomKey(player)).getLight();
+        return roomLight.isIlluminate()||player.getInv().getLight().isIlluminate();
+    }
+
+    public String look(String username) {
+        final Player player = playingPlayers.get(username);
+        if (isNotDark(player)) {
+            return getFrontWall(player,player.getDirection()).look();
+        } else return "Dark";
+    }
+
+    public String checkKey(String username) {
+        final Player player = playingPlayers.get(username);
+        Wall frontWall= getFrontWall(player,player.getDirection());
+        return frontWall.getLock().check();
+    }
+
+    public String check(String username) {
+        final Player player = playingPlayers.get(username);
+        Wall frontWall= getFrontWall(player,player.getDirection());
+            if (frontWall.getLock().isLocked()) {
+                return frontWall.getLock().check();
+            } else if (!frontWall.getInv().check().isEmpty()) {
+                player.getInv().addAll(frontWall.getInv().check());
+                return frontWall.getInv().loot();
+            }
+            return "No Item Here";
+    }
+
+    public RoomKey getRoomKey(Player player){
+        return new RoomKey(player.getWorldId(),player.getCurrentPosition().x,player.getCurrentPosition().y);
+    }
 
     public void exit(String name) {
         if(playingPlayers.containsKey(name)){
-            String worldId= playingPlayers.get(name);
-            WorldNavigator worldNavigator= worldNavigators.get(worldId);
-            worldNavigator.exit(name);
+            addPlayerItemsToWorld(name);
+            Player player= playingPlayers.get(name);
+            playerPositions.remove(getRoomKey(player));
             playingPlayers.remove(name);
-            worldNavigator.getPlayers().remove(name);
         }
-        players.remove(name);
+        playerStatus.remove(name);
     }
 }

@@ -1,9 +1,10 @@
 package com.capstone.project.worldnavigator.world.item;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
 
-public class WithoutInv implements Inventory {
+public class WithoutInv implements Inventory, Serializable {
     private static final String ERROR_MASSAGE = "Can't do This Here";
 
     @Override

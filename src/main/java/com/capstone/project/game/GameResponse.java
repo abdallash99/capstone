@@ -10,7 +10,6 @@ public class GameResponse {
     private Gold numberOfGold;
     private List<Portable> items;
     private List<String> playersName;
-    private boolean isDead;
 
     @Override
     public String toString() {
@@ -19,15 +18,13 @@ public class GameResponse {
                 ", numberOfGold=" + numberOfGold +
                 ", items=" + items +
                 ", playersName=" + playersName +
-                ", isDead=" + isDead +
                 '}';
     }
 
-    public GameResponse(Gold numberOfGold, List<Portable> items, List<String> playersName, boolean isDead) {
+    public GameResponse(Gold numberOfGold, List<Portable> items, List<String> playersName) {
         this.numberOfGold = numberOfGold;
         this.items = items;
         this.playersName = playersName;
-        this.isDead = isDead;
     }
 
     public List<String> getPlayersName() {
@@ -38,13 +35,6 @@ public class GameResponse {
         this.playersName = playersName;
     }
 
-    public boolean isDead() {
-        return isDead;
-    }
-
-    public void setDead(boolean dead) {
-        isDead = dead;
-    }
 
     public String getRes() {
         return res;

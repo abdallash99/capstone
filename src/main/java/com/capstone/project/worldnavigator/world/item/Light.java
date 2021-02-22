@@ -1,8 +1,9 @@
 package com.capstone.project.worldnavigator.world.item;
 
+import java.io.Serializable;
 import java.util.Objects;
 
-public class Light implements Portable {
+public class Light implements Portable, Serializable {
     private final Gold price;
     private boolean isIlluminate;
     private final boolean isHaseLight;

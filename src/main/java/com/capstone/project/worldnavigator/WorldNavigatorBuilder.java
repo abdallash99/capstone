@@ -3,6 +3,7 @@ package com.capstone.project.worldnavigator;
 
 import static com.capstone.project.ProjectApplication.*;
 
+import com.capstone.project.util.RoomKey;
 import com.capstone.project.util.Triple;
 import com.capstone.project.worldnavigator.world.Room;
 import com.capstone.project.worldnavigator.world.item.*;
@@ -10,50 +11,39 @@ import com.capstone.project.worldnavigator.world.wall.Door;
 import com.capstone.project.worldnavigator.world.wall.Wall;
 import com.capstone.project.worldnavigator.world.wall.WallFactory;
 import com.capstone.project.util.UtilFunctions;
+import org.redisson.api.RMap;
+import org.redisson.api.RedissonClient;
 
-import java.awt.*;
 import java.util.*;
 import java.util.List;
 
 public class WorldNavigatorBuilder {
 
-    private WorldNavigatorBuilder() { }
 
 
-    private static final List<List<Room>> rooms = set();
+    private static  RMap<RoomKey,Room> rooms;
     private static final List<Integer> x = getShuffledList(HEIGHT);
-    private static final List<Integer> y = getShuffledList(WIDTH);
-    private static final Map<Triple, Door> doors = new HashMap<>();
-    private static final Queue<Key> keys = new LinkedList<>();
-    private static int numberOfFlashlight = (int) (HEIGHT * WIDTH * 0.01);
+    private static  final List<Integer> y = getShuffledList(WIDTH);
+    private static  final    Map<Triple, Door> doors = new HashMap<>();
+    private static final    Queue<Key> keys = new LinkedList<>();
+    private static  int numberOfFlashlight = (int) (HEIGHT * WIDTH * 0.01);
 
-    public static WorldNavigator build(Map<String,Player> players) {
+
+
+    public static void build(String worldId,RedissonClient redissonClient) {
+        rooms=redissonClient.getMap("rooms");
         for (int row=0;row<HEIGHT;row++) {
             for (int col=0;col<WIDTH;col++) {
-                rooms.get(row).set(col,createRoom(row,col));
+                rooms.put(new RoomKey(worldId,row,col),createRoom(row,col));
             }
         }
         for (var row : x) {
             for (var col : y) {
-                modifyRoom(rooms.get(row).get(col));
+                modifyRoom(rooms.get(new RoomKey(worldId,row,col)));
             }
         }
-        com.capstone.project.worldnavigator.world.Map map = new com.capstone.project.worldnavigator.world.Map(rooms);
-        final WorldNavigator worldNavigator = new WorldNavigator(map, players);
-        setPositions(players,worldNavigator);
-        return worldNavigator;
     }
 
-    private static void setPositions (Map<String, Player> players,WorldNavigator worldNavigator) {
-        players.forEach((key,value)->{
-            int x=random.nextInt(HEIGHT-1);
-            int y=random.nextInt(WIDTH-1);
-            int direction=random.nextInt(3);
-            value.setCurrentPosition(new Point(x,y));
-            value.setDirection(direction);
-            worldNavigator.setFrontWall(value);
-        });
-    }
 
     private static void modifyRoom(Room room) {
         for(int i=0;i<4;i++){
@@ -77,17 +67,6 @@ public class WorldNavigatorBuilder {
         }
         Collections.shuffle(x);
         return x;
-    }
-
-    private static List<List<Room>> set() {
-        List<List<Room>> lists = Collections.synchronizedList(new ArrayList<>(HEIGHT));
-        for (int i = 0; i < HEIGHT; ++i) {
-            lists.add(new ArrayList<>());
-            for (int j = 0; j < WIDTH; j++) {
-                lists.get(i).add(null);
-            }
-        }
-        return lists;
     }
 
     private static Room createRoom(int x,int y){

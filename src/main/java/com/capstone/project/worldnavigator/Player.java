@@ -3,29 +3,34 @@ package com.capstone.project.worldnavigator;
 import static com.capstone.project.ProjectApplication.*;
 
 import com.capstone.project.worldnavigator.world.item.WithInv;
-import com.capstone.project.worldnavigator.world.item.Key;
 import com.capstone.project.worldnavigator.world.item.Light;
-import com.capstone.project.worldnavigator.world.wall.Wall;
 
 import java.awt.*;
+import java.io.Serializable;
 
-public class Player {
+public class Player implements Serializable {
     private final WithInv withInv;
     private int direction;
     private Point currentPosition;
-    private Wall frontWall;
-    private boolean isAlive=true;
+    private final String worldId;
 
-    public Wall getFrontWall() {
-        return frontWall;
+    public WithInv getWithInv() {
+        return withInv;
+    }
+
+    public String getWorldId() {
+        return worldId;
+    }
+
+    public Player(WithInv withInv, int direction, Point currentPosition, String worldId) {
+        this.withInv = withInv;
+        this.direction = direction;
+        this.currentPosition = currentPosition;
+        this.worldId = worldId;
     }
 
     public void setDirection(int direction) {
         this.direction = direction;
-    }
-
-    public Player(WithInv withInv) {
-        this.withInv = withInv;
     }
 
     public int getDirection() {
@@ -65,19 +70,16 @@ public class Player {
                 "withInv=" + withInv +
                 ", direction=" + direction +
                 ", currentPosition=" + currentPosition +
-                ", frontWall=" + frontWall +
-                ", isAlive=" + isAlive +
                 '}';
     }
-
-    protected String move(int direction) {
+    public String move(int direction) {
         currentPosition.x += MOVE_RATE[direction].getX();
         currentPosition.y += MOVE_RATE[direction].getY();
         return "Moved To The Next game.world.Room";
     }
 
-    public void setFrontWall(Wall wall) {
-        this.frontWall = wall;
+    public String useFlashLight() {
+        return withInv.getLight().use();
     }
 
     public String playerStatus() {
@@ -88,55 +90,5 @@ public class Player {
             case 3 -> "West";
             default -> "Locking to moon";
         };
-    }
-
-    public String look() {
-        return frontWall.look();
-    }
-
-    public String check() {
-        if (frontWall.getLock().isLocked()) {
-            return frontWall.getLock().check();
-        } else if (!frontWall.getInv().check().isEmpty()) {
-            getInv().addAll(frontWall.getInv().check());
-            return frontWall.getInv().loot();
-        }
-        return "No Item Here";
-    }
-
-    public String checkKey() {
-        return frontWall.getLock().check();
-    }
-
-    public String open() {
-        return frontWall.getLock().open();
-    }
-
-    public String useFlashLight() {
-        return getFlashLight().use();
-    }
-
-    public String useKey(String type) {
-        return frontWall.unlock(new Key(type));
-    }
-
-    public String list() {
-        return frontWall.getInv().list();
-    }
-
-    public String buy(String type) {
-        return frontWall.getInv().buy(type);
-    }
-
-    public String sell(String type) {
-        return frontWall.getInv().sell(type);
-    }
-
-    public boolean isAlive() {
-        return isAlive;
-    }
-
-    public void dead() {
-        isAlive=false;
     }
 }

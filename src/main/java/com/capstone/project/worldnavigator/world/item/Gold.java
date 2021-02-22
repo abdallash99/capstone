@@ -1,8 +1,9 @@
 package com.capstone.project.worldnavigator.world.item;
 
+import java.io.Serializable;
 import java.util.Objects;
 
-public class Gold implements Portable {
+public class Gold implements Portable, Serializable {
     private int amount;
 
     public Gold(int amount) {

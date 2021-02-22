@@ -1,30 +1,17 @@
 package com.capstone.project.worldnavigator.world;
 
 
-import com.capstone.project.worldnavigator.world.item.Light;
-import com.capstone.project.worldnavigator.world.item.WithoutInv;
-import com.capstone.project.worldnavigator.world.item.WithoutLock;
-import com.capstone.project.worldnavigator.world.wall.NullWall;
-import com.capstone.project.worldnavigator.world.wall.Wall;
+import com.capstone.project.exception.BadRequestException;
+import com.capstone.project.util.RoomKey;
+import org.redisson.api.RMap;
 
 import java.awt.*;
-import java.util.List;
-
-import static com.capstone.project.ProjectApplication.ROOM_WALL_NUMBER;
 
 public class Map {
-    private final List<List<Room>> rooms;
+    private final RMap<RoomKey,Room> rooms;
 
-    public Map(List<List<Room>> rooms) {
+    public Map(RMap<RoomKey,Room> rooms) {
         this.rooms = rooms;
-    }
-
-    public Wall getWall(Point currentPosition, int direction) {
-        int x = currentPosition.x;
-        int y = currentPosition.y;
-        if (x < rooms.size() && y < rooms.get(x).size() && direction < ROOM_WALL_NUMBER) {
-            return rooms.get(x).get(y).getWalls().get(direction);
-        } else return new NullWall(new WithoutLock(true), new WithoutInv());
     }
 
     @Override
@@ -34,16 +21,11 @@ public class Map {
                 '}';
     }
 
-    public Room getRoom(Point currentPosition) {
-        return rooms.get(currentPosition.x).get(currentPosition.y);
+    public Room getRoom(Point currentPosition,String worldId) {
+        final RoomKey roomKey = new RoomKey(worldId, currentPosition.x, currentPosition.y);
+        if(rooms.containsKey(roomKey)){
+            return rooms.get(roomKey);
+        }else throw new BadRequestException("There is No Room With This id");
     }
 
-    public Light getLight(Point currentPosition) {
-        int x = currentPosition.x;
-        int y = currentPosition.y;
-        if (x < rooms.size() && y < rooms.get(x).size()) {
-            return rooms.get(x).get(y).getLight();
-        }
-        return new Light();
-    }
 }

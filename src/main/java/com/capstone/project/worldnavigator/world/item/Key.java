@@ -1,8 +1,9 @@
 package com.capstone.project.worldnavigator.world.item;
 
+import java.io.Serializable;
 import java.util.Objects;
 
-public class Key implements Portable {
+public class Key implements Portable, Serializable {
     private final String keyType;
     private final Gold price;
 

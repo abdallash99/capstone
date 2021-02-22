@@ -1,6 +1,8 @@
 package com.capstone.project.worldnavigator.world.item;
 
-public class WithoutLock implements Openable {
+import java.io.Serializable;
+
+public class WithoutLock implements Openable, Serializable {
     private boolean isBlock;
 
     public WithoutLock(boolean isBlock) {

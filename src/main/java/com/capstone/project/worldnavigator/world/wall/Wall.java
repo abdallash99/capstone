@@ -1,8 +1,11 @@
 package com.capstone.project.worldnavigator.world.wall;
 
 import com.capstone.project.worldnavigator.world.item.*;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
-public abstract class Wall {
+import java.io.Serializable;
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
+public abstract class Wall implements Serializable {
     private final Openable lock;
     private final Inventory inv;
 

@@ -1,11 +1,12 @@
 package com.capstone.project.worldnavigator.world.item;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-public class WithInv implements Inventory {
+public class WithInv implements Inventory, Serializable {
   private final List<Portable> invList;
   private final Gold gold;
   private Light light;
