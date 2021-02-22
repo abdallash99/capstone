@@ -2,6 +2,7 @@ package com.capstone.project.security;
 
 
 import com.capstone.project.ProjectApplication;
+import com.capstone.project.exception.BadRequestException;
 import com.capstone.project.security.models.AuthenticationRequest;
 import com.capstone.project.security.models.AuthenticationResponse;
 import com.capstone.project.security.user.MyUserDetailsService;
@@ -62,7 +63,7 @@ public class AuthController {
        {
     final Optional<User> user = userRepository.findByUserName(authenticationRequest.getUsername());
     if (user.isPresent()) {
-      return String.format("Username %s Is Already exist", authenticationRequest.getUsername());
+     throw new BadRequestException(String.format("Username %s Is Already exist", authenticationRequest.getUsername()));
     }
     User user1 = new User();
     user1.setUserName(authenticationRequest.getUsername());
