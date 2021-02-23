@@ -5,15 +5,14 @@ import com.capstone.project.exception.BadRequestException;
 import com.capstone.project.exception.ForbiddenException;
 import com.capstone.project.result.ResultService;
 import com.capstone.project.util.RoomKey;
-import com.capstone.project.util.UtilFunctions;
 import com.capstone.project.worldnavigator.GameStatus;
 import com.capstone.project.worldnavigator.Player;
-import com.capstone.project.worldnavigator.WorldNavigatorBuilder;
 import com.capstone.project.worldnavigator.world.Room;
 import com.capstone.project.worldnavigator.world.item.*;
 import com.capstone.project.worldnavigator.world.wall.Wall;
 import org.redisson.api.RMap;
 import org.redisson.api.RMultimap;
+import org.redisson.api.RQueue;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -31,7 +30,7 @@ public class GameService {
     private final RMap<RoomKey ,String> playerPositions;
     private final RMap<String ,Date> startingTimeOfGame;
     private final RMultimap<String,String> playerInGame;
-    private final Set<String> waitingPlayer;
+    private final RQueue<String> waitingPlayer;
 
     private final ResultService resultService;
 
@@ -43,7 +42,7 @@ public class GameService {
       startingTimeOfGame=redissonClient.getMap("time");
       playerPositions =redissonClient.getMap("positions");
       playerStatus=redissonClient.getMap("status");
-      waitingPlayer=new HashSet<>();
+      waitingPlayer=redissonClient.getQueue("playerQueue");
       playerInGame=redissonClient.getListMultimap("playerInGame");
       this.resultService=resultService;
       this.redissonClient=redissonClient;
@@ -53,7 +52,6 @@ public class GameService {
         checkIfAlreadyJoined(username);
         waitingPlayer.add(username);
         playerStatus.put(username,GameStatus.NOT_STARTED);
-        checkIfGameReady();
     }
 
     private void checkIfAlreadyJoined(String username) {
@@ -63,25 +61,7 @@ public class GameService {
     }
 
 
-    private void checkIfGameReady() {
-        if(waitingPlayer.size()>=NUMBER_OF_PLAYER){
-            String id= UtilFunctions.generateRandomWords();
-            WorldNavigatorBuilder.build(id,redissonClient);
-            startingTimeOfGame.put(id,new Date());
-            for (var username:waitingPlayer){
-                WithInv inv=new WithInv();
-                inv.add(new Gold(20));
-                playingPlayers.put(
-                        username,
-                        new Player(inv,
-                            random.nextInt(4),
-                            new Point(random.nextInt(HEIGHT-1),random.nextInt(WIDTH-1)),
-                            id)
-                );
-                playerStatus.put(username,GameStatus.START);
-            }
-        }
-    }
+
     private void checkIfStart(String username) {
         if(!playingPlayers.containsKey(username))
             throw new ForbiddenException("The game not started yet");
