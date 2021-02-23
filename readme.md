@@ -328,14 +328,21 @@ I used three main type of datastructures.
 ### Git and Github
 I use git as version control and use github to host my code on it
 ### jenkins 
-I create jenkins server on aws that talk code from github repository and build the code using maven and create an image and after all push it to docker hub.
-For frontend, I don't create one for now I will create one soon.
+I create three pipelines:
+* The first one is for the backend, every time code pushed to github repository under master branch the pipeline will automatically run and push new docker image to the docker hub, and at the same time it will update :latest image. 
+* The second one is for the frontend, each time the developer push code to main branch the pipeline will run automatically, the pipeline will produce a new image and update :latest image.
+* The third one is used to deploy the code it runs manually after it run it will update the images used in all deployment. 
 ### Docker 
-I use Docker to create image and run container from it, you can check docker file here to see how I create the image.
+I use Docker to create an image and run container from it, you can check docker file here to see how I create the image.
 
 ### Kubernetes 
-I use kubernetes as orchestration tools for docker container and I use EKS from AWS to run it in the cloud I will add folder with all required .yaml file.
+I use kubernetes as orchestration tools for docker container, and I use EKS from AWS to run it in the cloud, you can check K8 folder it has all .yml files used in creating the deployment and services and other stuff.
 
 ## orchestration and containerization of My project
-I create Deployment for a backend and another one for frontend with this deployment I create two service with load balancer and this service give me two url, I connect backend with front end.
-I create postgresql host, but I don't write the code by me I git the code to run it from internet if you want to know more please open K8 folder you can find all file there  
+I create Deployment for a backend and another one for the frontend with this deployment I create two service with load balancer and this service give me two url, I connect the backend with front end.
+I create postgresql host, but I don't write the code by me I get the code to run it from the internet if you want to know more please open K8 folder you can find all file there.
+
+## Scalability of the project
+For the frontend there is no problem to scale it horizontally, the real problem here is with the backend, because of backend use a local cache of all thing about the game there is two way to sacle it horizantaly without problem:
+1. using of redis as distributed cache, I search about the best approach and find redis client called redisson it gives you way to create distributed data structure that shared between all backend server you can check redis branch to see sample code about it, but unfortunately I try to redesign my project to use it, it requires more time to be in the best approach, and in the other hand it comes with disadvantage of slowly, yes I use in memory caching, but it is still slow.
+2. using of sticky session, sticky session is cookies assigned by loadbalancer to first request and all request come after that will reassign to the same first server.
